@@ -11,6 +11,11 @@ frontend/android/app/debug
 frontend/android/app/profile
 frontend/android/app/release
 
+# Python Backend
+backend/.venv
+**/__py__.cache
+*.pyc
+
 # IDE / OS
 .vscode/
 .idea/
