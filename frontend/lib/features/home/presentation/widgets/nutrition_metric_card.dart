@@ -27,6 +27,7 @@ class NutritionMetricCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 38,
@@ -41,14 +42,20 @@ class NutritionMetricCard extends StatelessWidget {
               color: color,
             ),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: theme.textTheme.titleLarge,
+          const SizedBox(height: AppSpacing.lg),
+          Flexible(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleLarge,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall,
           ),
         ],

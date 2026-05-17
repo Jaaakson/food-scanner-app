@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: AppSpacing.md,
               mainAxisSpacing: AppSpacing.md,
-              childAspectRatio: 1.25,
+              childAspectRatio: 1.12,
               children: [
                 NutritionMetricCard(
                   label: 'Protein',
@@ -115,11 +115,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 NutritionMetricCard(
                   label: 'Sugar',
                   value: Formatters.grams(_todayNutrition.sugar),
-                  icon: LucideIcons.candy,
+                  icon: LucideIcons.cookie,
                   color: AppColors.sugar,
                 ),
               ],
-            ),
+            )
           ],
         ),
       ),
