@@ -14,6 +14,7 @@ import '../../data/repositories/camera_repository.dart';
 import '../../data/repositories/food_scan_repository.dart';
 import '../../models/food_prediction.dart';
 import '../widgets/analyzing_overlay.dart';
+import '../widgets/prediction_results_panel.dart';
 import '../widgets/scan_action_bar.dart';
 import '../widgets/scan_preview_frame.dart';
 
@@ -37,6 +38,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
 
   bool _isAnalyzing = false;
   List<FoodPrediction> _predictions = const [];
+  FoodPrediction? _selectedPrediction;
 
   bool get _hasSelectedImage => _selectedImage != null;
   bool get _hasPredictions => _predictions.isNotEmpty;
@@ -144,6 +146,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     setState(() {
       _selectedImage = pickedImage;
       _predictions = const [];
+      _selectedPrediction = null;
     });
   }
 
@@ -169,6 +172,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
       setState(() {
         _selectedImage = capturedImage;
         _predictions = const [];
+        _selectedPrediction = null;
       });
     } on CameraException {
       if (!mounted) return;
@@ -184,6 +188,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     setState(() {
       _isAnalyzing = true;
       _predictions = const [];
+      _selectedPrediction = null;
     });
 
     try {
@@ -195,8 +200,6 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
         _predictions = predictions;
         _isAnalyzing = false;
       });
-
-      _showMessage('Dummy prediction completed.');
     } catch (_) {
       if (!mounted) return;
 
@@ -208,13 +211,44 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     }
   }
 
+  void _selectPrediction(FoodPrediction prediction) {
+    setState(() {
+      _selectedPrediction = prediction;
+    });
+  }
+
+  void _clearSelectedPrediction() {
+    setState(() {
+      _selectedPrediction = null;
+    });
+  }
+
   void _clearSelectedImage() {
     if (_isAnalyzing) return;
 
     setState(() {
       _selectedImage = null;
       _predictions = const [];
+      _selectedPrediction = null;
     });
+  }
+
+  void _scanAgain() {
+    if (_isAnalyzing) return;
+
+    setState(() {
+      _selectedImage = null;
+      _predictions = const [];
+      _selectedPrediction = null;
+    });
+  }
+
+  void _saveResult() {
+    final prediction = _selectedPrediction;
+
+    if (prediction == null) return;
+
+    _showMessage('${prediction.name} saved locally as dummy result.');
   }
 
   void _showMessage(String message) {
@@ -255,7 +289,6 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                 },
               ),
             ),
-
             Positioned(
               top: AppSpacing.lg,
               left: AppSpacing.lg,
@@ -266,7 +299,6 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                 onClosePressed: hasSelectedImage ? _clearSelectedImage : null,
               ),
             ),
-
             if (hasSelectedImage && !_hasPredictions)
               Positioned(
                 left: AppSpacing.xl,
@@ -289,7 +321,20 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                   onGalleryPressed: _pickImageFromGallery,
                 ),
               ),
-
+            if (_hasPredictions)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: PredictionResultsPanel(
+                  predictions: _predictions,
+                  selectedPrediction: _selectedPrediction,
+                  onPredictionSelected: _selectPrediction,
+                  onClearSelection: _clearSelectedPrediction,
+                  onSavePressed: _saveResult,
+                  onScanAgainPressed: _scanAgain,
+                ),
+              ),
             if (_isAnalyzing) const AnalyzingOverlay(),
           ],
         ),
