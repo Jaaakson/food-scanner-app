@@ -15,13 +15,12 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  int _selectedIndex = 0;
+  static const int _homeIndex = 0;
+  static const int _scanIndex = 1;
 
-  static const List<Widget> _screens = [
-    HomeScreen(),
-    ScanScreen(),
-    ProfileScreen(),
-  ];
+  int _selectedIndex = _homeIndex;
+
+  bool get _isScanTabSelected => _selectedIndex == _scanIndex;
 
   void _onTabSelected(int index) {
     if (_selectedIndex == index) return;
@@ -31,13 +30,26 @@ class _MainShellState extends State<MainShell> {
     });
   }
 
+  void _goToHome() {
+    _onTabSelected(_homeIndex);
+  }
+
+  List<Widget> get _screens {
+    return [
+      const HomeScreen(),
+      ScanScreen(
+        onCloseRequested: _goToHome,
+      ),
+      const ProfileScreen(),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
+      extendBody: true,
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
+        duration: const Duration(milliseconds: 240),
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         child: KeyedSubtree(
@@ -45,54 +57,99 @@ class _MainShellState extends State<MainShell> {
           child: _screens[_selectedIndex],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            0,
-            AppSpacing.lg,
-            AppSpacing.lg,
-          ),
-          padding: const EdgeInsets.all(AppSpacing.xs),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(AppRadius.xl),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.35),
+      bottomNavigationBar: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          final offsetAnimation = Tween<Offset>(
+            begin: const Offset(0, 0.35),
+            end: Offset.zero,
+          ).animate(animation);
+
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: offsetAnimation,
+              child: child,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha:
-                  theme.brightness == Brightness.dark ? 0.24 : 0.065,
-                ),
-                blurRadius: 28,
-                offset: const Offset(0, 14),
+          );
+        },
+        child: _isScanTabSelected
+            ? const SizedBox.shrink(
+                key: ValueKey('hidden-bottom-navigation'),
+              )
+            : _FloatingBottomNavigation(
+                key: const ValueKey('visible-bottom-navigation'),
+                selectedIndex: _selectedIndex,
+                onTabSelected: _onTabSelected,
               ),
-            ],
+      ),
+    );
+  }
+}
+
+class _FloatingBottomNavigation extends StatelessWidget {
+  const _FloatingBottomNavigation({
+    super.key,
+    required this.selectedIndex,
+    required this.onTabSelected,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onTabSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          0,
+          AppSpacing.lg,
+          AppSpacing.lg,
+        ),
+        padding: const EdgeInsets.all(AppSpacing.xs),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.35),
           ),
-          child: Row(
-            children: [
-              _BottomNavItem(
-                label: 'Home',
-                icon: LucideIcons.home,
-                isSelected: _selectedIndex == 0,
-                onTap: () => _onTabSelected(0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 
+                theme.brightness == Brightness.dark ? 0.24 : 0.065,
               ),
-              _BottomNavItem(
-                label: 'Scan',
-                icon: LucideIcons.scanLine,
-                isSelected: _selectedIndex == 1,
-                onTap: () => _onTabSelected(1),
-              ),
-              _BottomNavItem(
-                label: 'Profile',
-                icon: LucideIcons.user,
-                isSelected: _selectedIndex == 2,
-                onTap: () => _onTabSelected(2),
-              ),
-            ],
-          ),
+              blurRadius: 28,
+              offset: const Offset(0, 14),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            _BottomNavItem(
+              label: 'Home',
+              icon: LucideIcons.home,
+              isSelected: selectedIndex == 0,
+              onTap: () => onTabSelected(0),
+            ),
+            _BottomNavItem(
+              label: 'Scan',
+              icon: LucideIcons.scanLine,
+              isSelected: selectedIndex == 1,
+              onTap: () => onTabSelected(1),
+            ),
+            _BottomNavItem(
+              label: 'Profile',
+              icon: LucideIcons.user,
+              isSelected: selectedIndex == 2,
+              onTap: () => onTabSelected(2),
+            ),
+          ],
         ),
       ),
     );
