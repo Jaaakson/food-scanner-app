@@ -3,6 +3,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/animated_page_section.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_menu_tile.dart';
@@ -58,73 +59,82 @@ class _ProfileScreenState extends State<ProfileScreen> {
             AppSpacing.xxxl,
           ),
           children: [
-            const ProfileHeader(
-              userName: AppConstants.defaultUserName,
-              subtitle: 'AI Food Scanner Demo',
+            const AnimatedPageSection(
+              delay: Duration(milliseconds: 40),
+              child: ProfileHeader(
+                userName: AppConstants.defaultUserName,
+                subtitle: 'AI Food Scanner Demo',
+              ),
             ),
             const SizedBox(height: AppSpacing.xl),
-
-            Row(
-              children: const [
-                Expanded(
-                  child: ProfileStatCard(
-                    label: 'Daily Target',
-                    value: '${AppConstants.dailyCalorieTarget}',
-                    unit: 'kcal',
-                    icon: LucideIcons.flame,
-                  ),
-                ),
-                SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: ProfileStatCard(
-                    label: 'Mode',
-                    value: 'MVP',
-                    unit: 'demo',
-                    icon: LucideIcons.layers,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            ThemeModeCard(
-              isDarkModeEnabled: _isDarkModeEnabled,
-              onChanged: _toggleDarkMode,
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            AppCard(
-              padding: EdgeInsets.zero,
-              child: Column(
+            const AnimatedPageSection(
+              delay: Duration(milliseconds: 90),
+              child: Row(
                 children: [
-                  ProfileMenuTile(
-                    icon: LucideIcons.clipboardList,
-                    title: 'Nutrition Facts',
-                    subtitle: 'Manage nutrition reference data',
-                    onTap: () => _showComingSoon('Nutrition Facts'),
+                  Expanded(
+                    child: ProfileStatCard(
+                      label: 'Daily Target',
+                      value: '2200',
+                      unit: 'kcal',
+                      icon: LucideIcons.flame,
+                    ),
                   ),
-                  const _ProfileMenuDivider(),
-                  ProfileMenuTile(
-                    icon: LucideIcons.target,
-                    title: 'Set Plan',
-                    subtitle: 'Configure calorie and macro goals',
-                    onTap: () => _showComingSoon('Set Plan'),
-                  ),
-                  const _ProfileMenuDivider(),
-                  ProfileMenuTile(
-                    icon: LucideIcons.history,
-                    title: 'History',
-                    subtitle: 'View saved scan results',
-                    onTap: () => _showComingSoon('History'),
-                  ),
-                  const _ProfileMenuDivider(),
-                  ProfileMenuTile(
-                    icon: LucideIcons.settings,
-                    title: 'Settings',
-                    subtitle: 'App preferences and account options',
-                    onTap: () => _showComingSoon('Settings'),
+                  SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: ProfileStatCard(
+                      label: 'Mode',
+                      value: 'MVP',
+                      unit: 'demo',
+                      icon: LucideIcons.layers,
+                    ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            AnimatedPageSection(
+              delay: const Duration(milliseconds: 140),
+              child: ThemeModeCard(
+                isDarkModeEnabled: _isDarkModeEnabled,
+                onChanged: _toggleDarkMode,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            AnimatedPageSection(
+              delay: const Duration(milliseconds: 190),
+              child: AppCard(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    ProfileMenuTile(
+                      icon: LucideIcons.clipboardList,
+                      title: 'Nutrition Facts',
+                      subtitle: 'Manage nutrition reference data',
+                      onTap: () => _showComingSoon('Nutrition Facts'),
+                    ),
+                    const _ProfileMenuDivider(),
+                    ProfileMenuTile(
+                      icon: LucideIcons.target,
+                      title: 'Set Plan',
+                      subtitle: 'Configure calorie and macro goals',
+                      onTap: () => _showComingSoon('Set Plan'),
+                    ),
+                    const _ProfileMenuDivider(),
+                    ProfileMenuTile(
+                      icon: LucideIcons.history,
+                      title: 'History',
+                      subtitle: 'View saved scan results',
+                      onTap: () => _showComingSoon('History'),
+                    ),
+                    const _ProfileMenuDivider(),
+                    ProfileMenuTile(
+                      icon: LucideIcons.settings,
+                      title: 'Settings',
+                      subtitle: 'App preferences and account options',
+                      onTap: () => _showComingSoon('Settings'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

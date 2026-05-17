@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_radius.dart';
@@ -38,7 +39,7 @@ class ScanActionBar extends StatelessWidget {
   }
 }
 
-class _CaptureButton extends StatelessWidget {
+class _CaptureButton extends StatefulWidget {
   const _CaptureButton({
     required this.onTap,
   });
@@ -46,32 +47,75 @@ class _CaptureButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_CaptureButton> createState() => _CaptureButtonState();
+}
+
+class _CaptureButtonState extends State<_CaptureButton> {
+  bool _isPressed = false;
+
+  void _setPressed(bool value) {
+    if (_isPressed == value) return;
+
+    setState(() {
+      _isPressed = value;
+    });
+  }
+
+  void _handleTap() {
+    widget.onTap();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        height: 78,
-        width: 78,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.92),
-            width: 4,
+      onTap: _handleTap,
+      onTapDown: (_) => _setPressed(true),
+      onTapCancel: () => _setPressed(false),
+      onTapUp: (_) => _setPressed(false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.92 : 1,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        child: Container(
+          height: 78,
+          width: 78,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.92),
+              width: 4,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.white.withValues(alpha: 0.16),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ),
-        child: Center(
-          child: Container(
-            height: 58,
-            width: 58,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+          child: Center(
+            child: Container(
+              height: 58,
+              width: 58,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
         ),
       ),
-    );
+    )
+        .animate(
+          onPlay: (controller) => controller.repeat(reverse: true),
+        )
+        .scale(
+          begin: const Offset(1, 1),
+          end: const Offset(1.035, 1.035),
+          duration: const Duration(milliseconds: 1100),
+          curve: Curves.easeInOut,
+        );
   }
 }
 

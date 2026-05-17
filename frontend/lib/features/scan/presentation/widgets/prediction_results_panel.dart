@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -56,96 +57,121 @@ class PredictionResultsPanel extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 5,
-                width: 46,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(AppRadius.full),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Row(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.62,
+          ),
+          child: SingleChildScrollView(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: Text(
-                      activePrediction == null
-                          ? 'Top Predictions'
-                          : activePrediction.name,
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
-                    ),
+                    height: 5,
+                    width: 46,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.secondaryContainer,
+                      color: theme.colorScheme.outline.withValues(alpha: 0.55),
                       borderRadius: BorderRadius.circular(AppRadius.full),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          LucideIcons.sparkles,
-                          size: 15,
-                          color: theme.colorScheme.primary,
-                        ),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(
-                          'AI Result',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          activePrediction == null
+                              ? 'Top Predictions'
+                              : activePrediction.name,
+                          style: theme.textTheme.titleLarge,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(AppRadius.full),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              LucideIcons.sparkles,
+                              size: 15,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(
+                              'AI Result',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    child: activePrediction == null
+                        ? _PredictionList(
+                            key: const ValueKey('prediction-list'),
+                            predictions: predictions,
+                            onPredictionSelected: onPredictionSelected,
+                          )
+                        : _FoodDetailContent(
+                            key: ValueKey(activePrediction.id),
+                            prediction: activePrediction,
+                            onChangePressed: onClearSelection,
+                          ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (activePrediction != null) ...[
+                    PrimaryButton(
+                      label: 'Save Result',
+                      icon: LucideIcons.check,
+                      onPressed: onSavePressed,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    TextButton.icon(
+                      onPressed: onScanAgainPressed,
+                      icon: const Icon(LucideIcons.refreshCcw, size: 18),
+                      label: const Text('Scan Again'),
+                    ),
+                  ],
                 ],
               ),
-              const SizedBox(height: AppSpacing.md),
-              if (activePrediction == null)
-                _PredictionList(
-                  predictions: predictions,
-                  onPredictionSelected: onPredictionSelected,
-                )
-              else
-                _FoodDetailContent(
-                  prediction: activePrediction,
-                  onChangePressed: onClearSelection,
-                ),
-              const SizedBox(height: AppSpacing.lg),
-              if (activePrediction != null) ...[
-                PrimaryButton(
-                  label: 'Save Result',
-                  icon: LucideIcons.check,
-                  onPressed: onSavePressed,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                TextButton.icon(
-                  onPressed: onScanAgainPressed,
-                  icon: const Icon(LucideIcons.refreshCcw, size: 18),
-                  label: const Text('Scan Again'),
-                ),
-              ],
-            ],
+            ),
           ),
         ),
       ),
-    );
+    )
+        .animate()
+        .fadeIn(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+        )
+        .slideY(
+          begin: 0.18,
+          end: 0,
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOutCubic,
+        );
   }
 }
 
 class _PredictionList extends StatelessWidget {
   const _PredictionList({
+    super.key,
     required this.predictions,
     required this.onPredictionSelected,
   });
@@ -278,6 +304,7 @@ class _PredictionTile extends StatelessWidget {
 
 class _FoodDetailContent extends StatelessWidget {
   const _FoodDetailContent({
+    super.key,
     required this.prediction,
     required this.onChangePressed,
   });

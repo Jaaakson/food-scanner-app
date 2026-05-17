@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/models/nutrition_summary.dart';
+import '../../../../shared/widgets/animated_page_section.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../widgets/calorie_summary_card.dart';
 import '../widgets/home_header.dart';
@@ -58,68 +59,81 @@ class _HomeScreenState extends State<HomeScreen> {
             AppSpacing.xxxl,
           ),
           children: [
-            const HomeHeader(
-              userName: AppConstants.defaultUserName,
+            const AnimatedPageSection(
+              delay: Duration(milliseconds: 40),
+              child: HomeHeader(
+                userName: AppConstants.defaultUserName,
+              ),
             ),
             const SizedBox(height: AppSpacing.xl),
-
-            Text(
-              monthLabel,
-              style: Theme.of(context).textTheme.titleMedium,
+            AnimatedPageSection(
+              delay: const Duration(milliseconds: 90),
+              child: Text(
+                monthLabel,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
-
-            WeekCalendar(
-              selectedDate: _selectedDate,
-              onDateSelected: _selectDate,
+            AnimatedPageSection(
+              delay: const Duration(milliseconds: 130),
+              child: WeekCalendar(
+                selectedDate: _selectedDate,
+                onDateSelected: _selectDate,
+              ),
             ),
             const SizedBox(height: AppSpacing.xl),
-
-            CalorieSummaryCard(
-              consumedCalories: _todayNutrition.calories,
-              targetCalories: AppConstants.dailyCalorieTarget,
+            AnimatedPageSection(
+              delay: const Duration(milliseconds: 180),
+              child: CalorieSummaryCard(
+                consumedCalories: _todayNutrition.calories,
+                targetCalories: AppConstants.dailyCalorieTarget,
+              ),
             ),
             const SizedBox(height: AppSpacing.xl),
-
-            const SectionHeader(
-              title: 'Today’s Nutrition',
+            const AnimatedPageSection(
+              delay: Duration(milliseconds: 220),
+              child: SectionHeader(
+                title: 'Today’s Nutrition',
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
-
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: AppSpacing.md,
-              mainAxisSpacing: AppSpacing.md,
-              childAspectRatio: 1.12,
-              children: [
-                NutritionMetricCard(
-                  label: 'Protein',
-                  value: Formatters.grams(_todayNutrition.protein),
-                  icon: LucideIcons.dumbbell,
-                  color: AppColors.protein,
-                ),
-                NutritionMetricCard(
-                  label: 'Carbs',
-                  value: Formatters.grams(_todayNutrition.carbs),
-                  icon: LucideIcons.wheat,
-                  color: AppColors.carbs,
-                ),
-                NutritionMetricCard(
-                  label: 'Fats',
-                  value: Formatters.grams(_todayNutrition.fats),
-                  icon: LucideIcons.droplet,
-                  color: AppColors.fats,
-                ),
-                NutritionMetricCard(
-                  label: 'Sugar',
-                  value: Formatters.grams(_todayNutrition.sugar),
-                  icon: LucideIcons.cookie,
-                  color: AppColors.sugar,
-                ),
-              ],
-            )
+            AnimatedPageSection(
+              delay: const Duration(milliseconds: 260),
+              child: GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisSpacing: AppSpacing.md,
+                mainAxisSpacing: AppSpacing.md,
+                childAspectRatio: 1.12,
+                children: [
+                  NutritionMetricCard(
+                    label: 'Protein',
+                    value: Formatters.grams(_todayNutrition.protein),
+                    icon: LucideIcons.dumbbell,
+                    color: AppColors.protein,
+                  ),
+                  NutritionMetricCard(
+                    label: 'Carbs',
+                    value: Formatters.grams(_todayNutrition.carbs),
+                    icon: LucideIcons.wheat,
+                    color: AppColors.carbs,
+                  ),
+                  NutritionMetricCard(
+                    label: 'Fats',
+                    value: Formatters.grams(_todayNutrition.fats),
+                    icon: LucideIcons.droplet,
+                    color: AppColors.fats,
+                  ),
+                  NutritionMetricCard(
+                    label: 'Sugar',
+                    value: Formatters.grams(_todayNutrition.sugar),
+                    icon: LucideIcons.cookie,
+                    color: AppColors.sugar,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
