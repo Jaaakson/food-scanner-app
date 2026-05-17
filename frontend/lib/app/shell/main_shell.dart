@@ -39,6 +39,7 @@ class _MainShellState extends State<MainShell> {
       const HomeScreen(),
       ScanScreen(
         onCloseRequested: _goToHome,
+        onResultSaved: _goToHome,
       ),
       const ProfileScreen(),
     ];

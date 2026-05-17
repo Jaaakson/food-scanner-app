@@ -22,9 +22,11 @@ class ScanScreen extends StatefulWidget {
   const ScanScreen({
     super.key,
     this.onCloseRequested,
+    this.onResultSaved,
   });
 
   final VoidCallback? onCloseRequested;
+  final VoidCallback? onResultSaved;
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -254,7 +256,20 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
 
     if (prediction == null) return;
 
-    _showMessage('${prediction.name} saved locally as dummy result.');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${prediction.name} saved locally as dummy result.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    setState(() {
+      _selectedImage = null;
+      _predictions = const [];
+      _selectedPrediction = null;
+    });
+
+    widget.onResultSaved?.call();
   }
 
   void _handleClosePressed() {
@@ -307,8 +322,8 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
               ),
             ),
             Positioned(
-              top: AppSpacing.xl,
-              left: AppSpacing.xxl,
+              top: AppSpacing.lg,
+              left: AppSpacing.xl,
               right: AppSpacing.xl,
               child: _ScanTopBar(
                 hasSelectedImage: hasSelectedImage,
