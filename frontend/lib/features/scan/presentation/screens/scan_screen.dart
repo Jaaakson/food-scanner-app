@@ -307,9 +307,9 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
               ),
             ),
             Positioned(
-              top: AppSpacing.lg,
-              left: AppSpacing.lg,
-              right: AppSpacing.lg,
+              top: AppSpacing.xl,
+              left: AppSpacing.xxl,
+              right: AppSpacing.xl,
               child: _ScanTopBar(
                 hasSelectedImage: hasSelectedImage,
                 hasPredictions: _hasPredictions,
@@ -371,52 +371,61 @@ class _ScanTopBar extends StatelessWidget {
   final bool hasPredictions;
   final VoidCallback onClosePressed;
 
+  String get _title {
+    if (hasPredictions) return 'Analyzed';
+    if (hasSelectedImage) return 'Preview';
+    return 'Food Scan';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    String label = 'Food Scan';
-
-    if (hasSelectedImage) {
-      label = 'Preview';
-    }
-
-    if (hasPredictions) {
-      label = 'Analyzed';
-    }
-
-    return Row(
-      children: [
-        IconCircleButton(
-          icon: LucideIcons.x,
-          onPressed: onClosePressed,
-          backgroundColor: Colors.white.withValues(alpha: 0.14),
-          foregroundColor: Colors.white,
-        ),
-        const Spacer(),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(AppRadius.full),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.18),
+    return SizedBox(
+      height: 48,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconCircleButton(
+              icon: LucideIcons.x,
+              onPressed: onClosePressed,
+              backgroundColor: Colors.black.withValues(alpha: 0.24),
+              foregroundColor: Colors.white,
             ),
           ),
-          child: Text(
-            label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
+          Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.24),
+                borderRadius: BorderRadius.circular(AppRadius.full),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.14),
+                ),
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 160),
+                child: Text(
+                  _title,
+                  key: ValueKey<String>(_title),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.1,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

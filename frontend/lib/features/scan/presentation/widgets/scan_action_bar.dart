@@ -18,20 +18,25 @@ class ScanActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 82,
+      height: 70,
+      width: double.infinity,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Positioned(
-            right: 0,
-            child: _SecondaryScanButton(
-              icon: LucideIcons.imagePlus,
-              label: 'Gallery',
-              onTap: onGalleryPressed,
+          Center(
+            child: _CaptureButton(
+              onTap: onCapturePressed,
             ),
           ),
-          _CaptureButton(
-            onTap: onCapturePressed,
+          Center(
+            child: Transform.translate(
+              offset: const Offset(92, 0),
+              child: _SecondaryScanButton(
+                icon: LucideIcons.imagePlus,
+                label: 'Gallery',
+                onTap: onGalleryPressed,
+              ),
+            ),
           ),
         ],
       ),
@@ -112,14 +117,14 @@ class _CaptureButtonState extends State<_CaptureButton> {
         )
         .scale(
           begin: const Offset(1, 1),
-          end: const Offset(1.035, 1.035),
-          duration: const Duration(milliseconds: 1100),
+          end: const Offset(1.025, 1.025),
+          duration: const Duration(milliseconds: 1200),
           curve: Curves.easeInOut,
         );
   }
 }
 
-class _SecondaryScanButton extends StatelessWidget {
+class _SecondaryScanButton extends StatefulWidget {
   const _SecondaryScanButton({
     required this.icon,
     required this.label,
@@ -131,40 +136,68 @@ class _SecondaryScanButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_SecondaryScanButton> createState() => _SecondaryScanButtonState();
+}
+
+class _SecondaryScanButtonState extends State<_SecondaryScanButton> {
+  bool _isPressed = false;
+
+  void _setPressed(bool value) {
+    if (_isPressed == value) return;
+
+    setState(() {
+      _isPressed = value;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: 48,
-            width: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(AppRadius.full),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.18),
+      onTap: widget.onTap,
+      onTapDown: (_) => _setPressed(true),
+      onTapCancel: () => _setPressed(false),
+      onTapUp: (_) => _setPressed(false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.94 : 1,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        child: SizedBox(
+          width: 70,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 48,
+                width: 48,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.24),
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.16),
+                  ),
+                ),
+                child: Icon(
+                  widget.icon,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 22,
-            ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.86),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: Colors.white.withValues(alpha: 0.82),
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
