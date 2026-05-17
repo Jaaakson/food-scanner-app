@@ -12,4 +12,8 @@ class Formatters {
   static String percentage(num value) {
     return '${value.round()}%';
   }
+
+  static String confidence(double value) {
+    return '${(value * 100).round()}%';
+  }
 }

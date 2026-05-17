@@ -11,6 +11,9 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/icon_circle_button.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../data/repositories/camera_repository.dart';
+import '../../data/repositories/food_scan_repository.dart';
+import '../../models/food_prediction.dart';
+import '../widgets/analyzing_overlay.dart';
 import '../widgets/scan_action_bar.dart';
 import '../widgets/scan_preview_frame.dart';
 
@@ -24,6 +27,7 @@ class ScanScreen extends StatefulWidget {
 class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   final ImagePicker _imagePicker = ImagePicker();
   final CameraRepository _cameraRepository = const CameraRepository();
+  final FoodScanRepository _foodScanRepository = const FoodScanRepository();
 
   CameraController? _cameraController;
   Future<void>? _initializeCameraFuture;
@@ -31,7 +35,11 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   XFile? _selectedImage;
   String? _cameraErrorMessage;
 
+  bool _isAnalyzing = false;
+  List<FoodPrediction> _predictions = const [];
+
   bool get _hasSelectedImage => _selectedImage != null;
+  bool get _hasPredictions => _predictions.isNotEmpty;
 
   @override
   void initState() {
@@ -123,6 +131,8 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _pickImageFromGallery() async {
+    if (_isAnalyzing) return;
+
     final pickedImage = await _imagePicker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 88,
@@ -133,10 +143,13 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
 
     setState(() {
       _selectedImage = pickedImage;
+      _predictions = const [];
     });
   }
 
   Future<void> _captureImage() async {
+    if (_isAnalyzing) return;
+
     final controller = _cameraController;
 
     if (controller == null || !controller.value.isInitialized) {
@@ -155,6 +168,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
 
       setState(() {
         _selectedImage = capturedImage;
+        _predictions = const [];
       });
     } on CameraException {
       if (!mounted) return;
@@ -162,24 +176,54 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _analyzeSelectedImage() async {
+    final image = _selectedImage;
+
+    if (image == null || _isAnalyzing) return;
+
+    setState(() {
+      _isAnalyzing = true;
+      _predictions = const [];
+    });
+
+    try {
+      final predictions = await _foodScanRepository.analyzeImage(image);
+
+      if (!mounted) return;
+
+      setState(() {
+        _predictions = predictions;
+        _isAnalyzing = false;
+      });
+
+      _showMessage('Dummy prediction completed.');
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isAnalyzing = false;
+      });
+
+      _showMessage('Failed to analyze image.');
+    }
+  }
+
   void _clearSelectedImage() {
+    if (_isAnalyzing) return;
+
     setState(() {
       _selectedImage = null;
+      _predictions = const [];
     });
   }
 
-  void _onAnalyzePressed() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Dummy analyzing flow will be added in the next stage.'),
-      ),
-    );
-  }
-
   void _showMessage(String message) {
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -218,11 +262,12 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
               right: AppSpacing.lg,
               child: _ScanTopBar(
                 hasSelectedImage: hasSelectedImage,
+                hasPredictions: _hasPredictions,
                 onClosePressed: hasSelectedImage ? _clearSelectedImage : null,
               ),
             ),
 
-            if (hasSelectedImage)
+            if (hasSelectedImage && !_hasPredictions)
               Positioned(
                 left: AppSpacing.xl,
                 right: AppSpacing.xl,
@@ -230,10 +275,11 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                 child: PrimaryButton(
                   label: 'Analyze Food',
                   icon: LucideIcons.sparkles,
-                  onPressed: _onAnalyzePressed,
+                  isLoading: _isAnalyzing,
+                  onPressed: _isAnalyzing ? null : _analyzeSelectedImage,
                 ),
               )
-            else
+            else if (!hasSelectedImage)
               Positioned(
                 left: AppSpacing.xl,
                 right: AppSpacing.xl,
@@ -243,6 +289,8 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                   onGalleryPressed: _pickImageFromGallery,
                 ),
               ),
+
+            if (_isAnalyzing) const AnalyzingOverlay(),
           ],
         ),
       ),
@@ -253,15 +301,27 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
 class _ScanTopBar extends StatelessWidget {
   const _ScanTopBar({
     required this.hasSelectedImage,
+    required this.hasPredictions,
     required this.onClosePressed,
   });
 
   final bool hasSelectedImage;
+  final bool hasPredictions;
   final VoidCallback? onClosePressed;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    String label = 'Food Scan';
+
+    if (hasSelectedImage) {
+      label = 'Preview';
+    }
+
+    if (hasPredictions) {
+      label = 'Analyzed';
+    }
 
     return Row(
       children: [
@@ -287,7 +347,7 @@ class _ScanTopBar extends StatelessWidget {
             ),
           ),
           child: Text(
-            hasSelectedImage ? 'Preview' : 'Food Scan',
+            label,
             style: theme.textTheme.labelMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w800,
