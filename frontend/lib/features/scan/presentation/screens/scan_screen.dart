@@ -19,7 +19,12 @@ import '../widgets/scan_action_bar.dart';
 import '../widgets/scan_preview_frame.dart';
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({super.key});
+  const ScanScreen({
+    super.key,
+    this.onCloseRequested,
+  });
+
+  final VoidCallback? onCloseRequested;
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -67,6 +72,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
 
     if (state == AppLifecycleState.inactive) {
       controller.dispose();
+      return;
     }
 
     if (state == AppLifecycleState.resumed && !_hasSelectedImage) {
@@ -251,6 +257,17 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     _showMessage('${prediction.name} saved locally as dummy result.');
   }
 
+  void _handleClosePressed() {
+    if (_isAnalyzing) return;
+
+    if (_hasSelectedImage || _hasPredictions) {
+      _clearSelectedImage();
+      return;
+    }
+
+    widget.onCloseRequested?.call();
+  }
+
   void _showMessage(String message) {
     if (!mounted) return;
 
@@ -296,7 +313,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
               child: _ScanTopBar(
                 hasSelectedImage: hasSelectedImage,
                 hasPredictions: _hasPredictions,
-                onClosePressed: hasSelectedImage ? _clearSelectedImage : null,
+                onClosePressed: _handleClosePressed,
               ),
             ),
             if (hasSelectedImage && !_hasPredictions)
@@ -352,7 +369,7 @@ class _ScanTopBar extends StatelessWidget {
 
   final bool hasSelectedImage;
   final bool hasPredictions;
-  final VoidCallback? onClosePressed;
+  final VoidCallback onClosePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -372,7 +389,7 @@ class _ScanTopBar extends StatelessWidget {
       children: [
         IconCircleButton(
           icon: LucideIcons.x,
-          onPressed: onClosePressed ?? () {},
+          onPressed: onClosePressed,
           backgroundColor: Colors.white.withValues(alpha: 0.14),
           foregroundColor: Colors.white,
         ),
