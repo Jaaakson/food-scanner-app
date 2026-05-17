@@ -1,68 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/widgets/app_card.dart';
+import '../../../../shared/widgets/icon_circle_button.dart';
+import '../widgets/scan_action_bar.dart';
+import '../widgets/scan_preview_frame.dart';
 
 class ScanScreen extends StatelessWidget {
   const ScanScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const _PlaceholderFeatureScreen(
-      icon: LucideIcons.scanLine,
-      title: 'Scan',
-      description: 'Camera-style scan interface will be built later.',
-    );
-  }
-}
-
-class _PlaceholderFeatureScreen extends StatelessWidget {
-  const _PlaceholderFeatureScreen({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
-
-  final IconData icon;
-  final String title;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: AppColors.textPrimary,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Center(
-            child: AppCard(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: ScanPreviewFrame(),
+            ),
+
+            Positioned(
+              top: AppSpacing.lg,
+              left: AppSpacing.lg,
+              right: AppSpacing.lg,
+              child: Row(
                 children: [
-                  Icon(
-                    icon,
-                    size: 36,
-                    color: theme.colorScheme.primary,
+                  IconCircleButton(
+                    icon: LucideIcons.x,
+                    onPressed: () {},
+                    backgroundColor: Colors.white.withValues(alpha: 0.14),
+                    foregroundColor: Colors.white,
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    title,
-                    style: theme.textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    description,
-                    style: theme.textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(AppRadius.full),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.18),
+                      ),
+                    ),
+                    child: Text(
+                      'Food Scan',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
+
+            Positioned(
+              left: AppSpacing.xl,
+              right: AppSpacing.xl,
+              bottom: AppSpacing.xl,
+              child: ScanActionBar(
+                onCapturePressed: () {},
+                onGalleryPressed: () {},
+              ),
+            ),
+          ],
         ),
       ),
     );
