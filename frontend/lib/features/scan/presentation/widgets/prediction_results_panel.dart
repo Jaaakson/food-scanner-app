@@ -14,6 +14,7 @@ class PredictionResultsPanel extends StatelessWidget {
     required this.predictions,
     required this.selectedPrediction,
     required this.onPredictionSelected,
+    required this.onClearSelection,
     required this.onSavePressed,
     required this.onScanAgainPressed,
   });
@@ -21,6 +22,7 @@ class PredictionResultsPanel extends StatelessWidget {
   final List<FoodPrediction> predictions;
   final FoodPrediction? selectedPrediction;
   final ValueChanged<FoodPrediction> onPredictionSelected;
+  final VoidCallback onClearSelection;
   final VoidCallback onSavePressed;
   final VoidCallback onScanAgainPressed;
 
@@ -118,7 +120,7 @@ class PredictionResultsPanel extends StatelessWidget {
               else
                 _FoodDetailContent(
                   prediction: activePrediction,
-                  onChangePressed: () => onPredictionSelected(activePrediction),
+                  onChangePressed: onClearSelection,
                 ),
               const SizedBox(height: AppSpacing.lg),
               if (activePrediction != null) ...[
