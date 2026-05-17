@@ -1,70 +1,149 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../widgets/profile_header.dart';
+import '../widgets/profile_menu_tile.dart';
+import '../widgets/profile_stat_card.dart';
+import '../widgets/theme_mode_card.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const _PlaceholderFeatureScreen(
-      icon: LucideIcons.user,
-      title: 'Profile',
-      description: 'User profile and settings UI will be built later.',
-    );
-  }
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _PlaceholderFeatureScreen extends StatelessWidget {
-  const _PlaceholderFeatureScreen({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _isDarkModeEnabled = false;
 
-  final IconData icon;
-  final String title;
-  final String description;
+  void _toggleDarkMode(bool value) {
+    setState(() {
+      _isDarkModeEnabled = value;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          value
+              ? 'Dark mode preview toggle enabled.'
+              : 'Dark mode preview toggle disabled.',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showComingSoon(String featureName) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$featureName will be implemented later.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Center(
-            child: AppCard(
-              padding: const EdgeInsets.all(AppSpacing.xl),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xl,
+            AppSpacing.xxxl,
+          ),
+          children: [
+            const ProfileHeader(
+              userName: AppConstants.defaultUserName,
+              subtitle: 'AI Food Scanner Demo',
+            ),
+            const SizedBox(height: AppSpacing.xl),
+
+            Row(
+              children: const [
+                Expanded(
+                  child: ProfileStatCard(
+                    label: 'Daily Target',
+                    value: '${AppConstants.dailyCalorieTarget}',
+                    unit: 'kcal',
+                    icon: LucideIcons.flame,
+                  ),
+                ),
+                SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: ProfileStatCard(
+                    label: 'Mode',
+                    value: 'MVP',
+                    unit: 'demo',
+                    icon: LucideIcons.layers,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xl),
+
+            ThemeModeCard(
+              isDarkModeEnabled: _isDarkModeEnabled,
+              onChanged: _toggleDarkMode,
+            ),
+            const SizedBox(height: AppSpacing.xl),
+
+            AppCard(
+              padding: EdgeInsets.zero,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    icon,
-                    size: 36,
-                    color: theme.colorScheme.primary,
+                  ProfileMenuTile(
+                    icon: LucideIcons.clipboardList,
+                    title: 'Nutrition Facts',
+                    subtitle: 'Manage nutrition reference data',
+                    onTap: () => _showComingSoon('Nutrition Facts'),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    title,
-                    style: theme.textTheme.headlineSmall,
+                  const _ProfileMenuDivider(),
+                  ProfileMenuTile(
+                    icon: LucideIcons.target,
+                    title: 'Set Plan',
+                    subtitle: 'Configure calorie and macro goals',
+                    onTap: () => _showComingSoon('Set Plan'),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    description,
-                    style: theme.textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
+                  const _ProfileMenuDivider(),
+                  ProfileMenuTile(
+                    icon: LucideIcons.history,
+                    title: 'History',
+                    subtitle: 'View saved scan results',
+                    onTap: () => _showComingSoon('History'),
+                  ),
+                  const _ProfileMenuDivider(),
+                  ProfileMenuTile(
+                    icon: LucideIcons.settings,
+                    title: 'Settings',
+                    subtitle: 'App preferences and account options',
+                    onTap: () => _showComingSoon('Settings'),
                   ),
                 ],
               ),
             ),
-          ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _ProfileMenuDivider extends StatelessWidget {
+  const _ProfileMenuDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 1,
+      indent: AppSpacing.lg,
+      endIndent: AppSpacing.lg,
+      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.35),
     );
   }
 }
